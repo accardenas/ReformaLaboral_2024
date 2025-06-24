@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis Interactivo: Reforma Laboral Colombia 2024</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Accord -->
+    <!-- Application Structure Plan: La aplicación está organizada en secciones temáticas navegables desde una barra superior fija, en lugar de seguir la estructura lineal del informe. El enfoque es un dashboard interactivo que permite la exploración no lineal. Comienza con una sección de 'Inicio' para el contexto general. Luego, secciones como 'Contratos', 'Jornada y Pagos', y 'Protecciones' usan comparaciones visuales (tarjetas lado a lado, gráficos) para facilitar la comprensión de los cambios. 'Nuevas Realidades' aborda temas modernos como las plataformas digitales con visualizaciones de datos específicos (gráficos de dona). La sección de 'Derechos Colectivos' resume los cambios clave. Esta estructura fue elegida porque descompone un tema legal complejo en fragmentos digeribles y centrados en el usuario, permitiendo que diferentes perfiles (empleadores, trabajadores, analistas) accedan directamente a la información de su interés, mejorando la usabilidad y la retención de la información. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Comparación de modalidades contractuales. Goal: Comparar. Viz/Method: Tarjetas interactivas con tabs (HTML/Tailwind/JS) para mostrar 'Antes' y 'Después'. Interaction: Clic en tabs. Justification: Permite una comparación directa y limpia, mejor que una tabla densa. Library/Method: Vanilla JS.
+        - Report Info: Aumento gradual del recargo dominical. Goal: Mostrar cambio en el tiempo. Viz/Method: Gráfico de líneas (Chart.js). Interaction: Hover en puntos para ver valor y año. Justification: Visualiza claramente la progresión y el impacto financiero a lo largo del tiempo. Library/Method: Chart.js.
+        - Report Info: Cambio de jornada nocturna. Goal: Informar cambio específico. Viz/Method: Diagrama visual simple (HTML/Tailwind). Interaction: Estático. Justification: Un visual simple es más impactante y rápido de entender que un párrafo de texto. Library/Method: HTML/Tailwind.
+        - Report Info: Aportes a seguridad social en plataformas. Goal: Mostrar proporción. Viz/Method: Gráfico de dona (Chart.js). Interaction: Hover en segmentos para ver porcentajes. Justification: Muestra eficazmente la distribución de la nueva responsabilidad de pago entre plataforma y trabajador. Library/Method: Chart.js.
+        - Report Info: Proceso disciplinario. Goal: Organizar información procesal. Viz/Method: Diagrama de flujo vertical con pasos numerados (HTML/Tailwind). Interaction: Estático. Justification: Traduce un proceso legal en una secuencia visual fácil de seguir. Library/Method: HTML/Tailwind.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF6;
+            color: #3C3633;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 384px;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #E07A5F;
+            border-bottom-color: #E07A5F;
+        }
+        .tab-button.active {
+            background-color: #E07A5F;
+            color: #FFFFFF;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border: 1px solid #F0EAD2;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-md">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex-shrink-0 flex items-center">
+                    <img src="Logo GESCONT transparencia.png" alt="Logo GESCONT" class="h-16 w-auto mr-3">
+                    <h1 class="text-xl md:text-2xl font-bold text-[#3C3633]">Reforma Laboral 2024</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#inicio" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Inicio</a>
+                        <a href="#contratos" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Contratos</a>
+                        <a href="#jornada" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Jornada y Pagos</a>
+                        <a href="#protecciones" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Protecciones</a>
+                        <a href="#plataformas" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Nuevas Realidades</a>
+                        <a href="#sindical" class="nav-link px-3 py-2 rounded-md text-sm font-medium">Derechos Colectivos</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <select id="mobile-nav" class="bg-white border border-gray-300 rounded-md py-2 px-3 text-sm">
+                        <option value="#inicio">Inicio</option>
+                        <option value="#contratos">Contratos</option>
+                        <option value="#jornada">Jornada y Pagos</option>
+                        <option value="#protecciones">Protecciones</option>
+                        <option value="#plataformas">Nuevas Realidades</option>
+                        <option value="#sindical">Derechos Colectivos</option>
+                    </select>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        
+        <section id="inicio" class="mb-16 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-[#3C3633] tracking-tight">Un Nuevo Contrato Social para Colombia</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">La reforma laboral 2024 modifica estructuralmente el Código Sustantivo del Trabajo, buscando un equilibrio entre la dignidad del trabajador y la realidad económica del país. Esta herramienta interactiva desglosa sus cambios más importantes.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="card p-6 rounded-lg">
+                    <h3 class="text-xl font-bold text-[#81B29A] mb-2">Principio Rector: Estabilidad</h3>
+                    <p class="text-gray-700">La reforma consagra el contrato a término indefinido como la regla general, priorizando la estabilidad laboral sobre la flexibilidad de legislaciones anteriores.</p>
+                </div>
+                <div class="card p-6 rounded-lg">
+                    <h3 class="text-xl font-bold text-[#81B29A] mb-2">El Gran Desafío: Informalidad</h3>
+                    <p class="text-gray-700">Con una tasa de informalidad que supera el <span class="font-bold text-2xl text-[#E07A5F]">57%</span>, el mayor reto es cómo los nuevos costos laborales impactarán la creación de empleo formal.</p>
+                </div>
+                <div class="card p-6 rounded-lg md:col-span-2 lg:col-span-1">
+                    <h3 class="text-xl font-bold text-[#81B29A] mb-2">Priman los Hechos</h3>
+                    <p class="text-gray-700">Se refuerza el principio de "primacía de la realidad sobre las formas", otorgando a los jueces más herramientas para combatir relaciones laborales encubiertas a través de contratos de servicios.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="contratos" class="mb-16 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-[#3C3633] tracking-tight">El Nuevo Panorama Contractual</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">La reforma re-define las reglas de vinculación, limitando la temporalidad y fortaleciendo el contrato indefinido. Explore las diferencias clave para cada modalidad.</p>
+            </div>
+            
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                <div class="mb-6 flex flex-wrap justify-center gap-2 border-b border-gray-200 pb-4">
+                    <button data-tab="indefinido" class="tab-button active text-sm font-medium py-2 px-4 rounded-full transition-colors duration-300">Indefinido</button>
+                    <button data-tab="fijo" class="tab-button text-sm font-medium py-2 px-4 rounded-full transition-colors duration-300">Término Fijo</button>
+                    <button data-tab="obra" class="tab-button text-sm font-medium py-2 px-4 rounded-full transition-colors duration-300">Obra o Labor</button>
+                    <button data-tab="aprendizaje" class="tab-button text-sm font-medium py-2 px-4 rounded-full transition-colors duration-300">Aprendizaje</button>
+                </div>
+                <div id="contract-content">
+                </div>
+            </div>
+        </section>
+
+        <section id="jornada" class="mb-16 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-[#3C3633] tracking-tight">Jornada Laboral y Recargos</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">Dos de los cambios con mayor impacto financiero directo: se redefine la jornada nocturna y se incrementa el pago por trabajo en días de descanso.</p>
+            </div>
+            <div class="grid lg:grid-cols-2 gap-8 items-center">
+                <div class="card p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold text-center mb-4">El Recargo Dominical se Eleva al 100%</h3>
+                    <p class="text-center text-gray-600 mb-4">La reforma establece un aumento gradual del recargo por trabajo en domingos y festivos, restaurando el 100% para 2027.</p>
+                    <div class="chart-container">
+                        <canvas id="recargoDominicalChart"></canvas>
+                    </div>
+                </div>
+                <div class="card p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold text-center mb-6">La Noche Empieza a las 7:00 p.m.</h3>
+                    <p class="text-center text-gray-600 mb-6">El recargo nocturno (35%) ahora se causa dos horas antes, incrementando los costos para operaciones extendidas.<br><strong class="text-sm text-gray-500">(Vigencia: 6 meses después de la promulgación de la ley)</strong></p>
+                    <div class="relative flex flex-col items-center">
+                        <div class="w-full h-2 bg-gray-200 rounded-full"></div>
+                        <div class="absolute top-0 w-full flex justify-between text-xs font-bold px-1">
+                            <span>6 AM</span>
+                            <span>7 PM</span>
+                            <span>9 PM</span>
+                            <span>6 AM</span>
+                        </div>
+                        <div class="mt-4 w-full text-center">
+                            <p class="font-semibold">Normativa Vigente</p>
+                            <div class="flex mt-1">
+                                <div class="h-6 bg-yellow-400 rounded-l-full" style="width: 62.5%;"></div>
+                                <div class="h-6 bg-blue-900 rounded-r-full" style="width: 37.5%;"></div>
+                            </div>
+                            <div class="flex justify-between text-xs px-1">
+                                <span>Diurna</span>
+                                <span>Nocturna</span>
+                            </div>
+                        </div>
+                        <div class="mt-6 w-full text-center">
+                             <p class="font-semibold text-[#E07A5F]">Nueva Reforma</p>
+                            <div class="flex mt-1">
+                                <div class="h-6 bg-yellow-400 rounded-l-full" style="width: 54.16%;"></div>
+                                <div class="h-6 bg-blue-900 rounded-r-full" style="width: 45.84%;"></div>
+                            </div>
+                             <div class="flex justify-between text-xs px-1">
+                                <span>Diurna (hasta 7pm)</span>
+                                <span class="font-bold">Nocturna (desde 7pm)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="protecciones" class="mb-16 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-[#3C3633] tracking-tight">Más Protección, Más Responsabilidad</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">Se introducen nuevas obligaciones para los empleadores, desde procesos disciplinarios más rigurosos hasta cuotas de contratación obligatorias.</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="card p-6 rounded-lg lg:col-span-2">
+                    <h3 class="text-xl font-bold text-[#81B29A] mb-4">Debido Proceso Disciplinario Codificado</h3>
+                    <p class="text-gray-600 mb-4">Se formaliza un procedimiento obligatorio para cualquier sanción (excepto para microempresas), aumentando la carga administrativa y el riesgo legal.</p>
+                    <ol class="relative border-l border-dashed border-gray-300 space-y-4 ml-2">
+                        <li class="ml-6"><span class="absolute -left-2.5 flex items-center justify-center w-5 h-5 bg-[#E07A5F] text-white rounded-full text-xs">1</span> <strong class="block">Comunicación Formal:</strong> Notificación escrita de los cargos.</li>
+                        <li class="ml-6"><span class="absolute -left-2.5 flex items-center justify-center w-5 h-5 bg-[#E07A5F] text-white rounded-full text-xs">2</span> <strong class="block">Traslado de Pruebas:</strong> Acceso a toda la evidencia en contra.</li>
+                        <li class="ml-6"><span class="absolute -left-2.5 flex items-center justify-center w-5 h-5 bg-[#E07A5F] text-white rounded-full text-xs">3</span> <strong class="block">Plazo de Defensa:</strong> Mínimo 5 días para responder y presentar pruebas.</li>
+                        <li class="ml-6"><span class="absolute -left-2.5 flex items-center justify-center w-5 h-5 bg-[#E07A5F] text-white rounded-full text-xs">4</span> <strong class="block">Decisión Motivada:</strong> Fallo final por escrito y justificado.</li>
+                        <li class="ml-6"><span class="absolute -left-2.5 flex items-center justify-center w-5 h-5 bg-[#E07A5F] text-white rounded-full text-xs">5</span> <strong class="block">Derecho a Impugnar:</strong> El trabajador puede apelar la decisión.</li>
+                    </ol>
+                </div>
+                <div class="card p-6 rounded-lg">
+                    <h3 class="text-xl font-bold text-[#81B29A] mb-4">Estabilidad Laboral Reforzada</h3>
+                     <p class="text-gray-600 mb-4">Se prohíbe el despido (salvo justa causa y con autorización previa de un juez) de:</p>
+                     <ul class="space-y-3">
+                        <li class="flex items-start"><span class="text-xl mr-3 text-[#E07A5F]">🤰</span> Personas gestantes y hasta 6 meses post-parto.</li>
+                        <li class="flex items-start"><span class="text-xl mr-3 text-[#E07A5F]">⏳</span> Pre-pensionados (a 3 años o menos de la pensión).</li>
+                        <li class="flex items-start"><span class="text-xl mr-3 text-[#E07A5F]">♿</span> Personas con discapacidad sobreviniente.</li>
+                     </ul>
+                </div>
+                 <div class="card p-6 rounded-lg lg:col-span-3">
+                    <h3 class="text-xl font-bold text-[#81B29A] mb-4">Nuevas Obligaciones para Empleadores</h3>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-lg">Cuota de Discapacidad</h4>
+                            <p class="text-gray-600 mt-1">Las empresas de +100 trabajadores deberán cumplir una cuota obligatoria de contratación de personas con discapacidad, implicando costos de reclutamiento y "ajustes razonables".<br><strong class="text-sm text-gray-500">(Obligatorio a partir del 2° año de vigencia de la ley)</strong></p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg">Prima por Crecimiento</h4>
+                            <p class="text-gray-600 mt-1"><strong class="text-[#3C3633]">A partir del 1 de enero de 2027</strong>, se crea una prima adicional si el crecimiento de la empresa supera el 4%, vinculando parte de la remuneración a resultados macroeconómicos.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="plataformas" class="mb-16 scroll-mt-20">
+             <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-[#3C3633] tracking-tight">Regulando las Nuevas Realidades</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">La reforma crea un marco pionero para la economía de plataformas y actualiza las normas de teletrabajo y tercerización para el mundo laboral post-pandemia.</p>
+            </div>
+            <div class="grid lg:grid-cols-5 gap-8">
+                <div class="lg:col-span-3 card p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold text-center mb-4">Plataformas Digitales: Un Modelo Híbrido</h3>
+                    <p class="text-center text-gray-600 mb-6">Para los repartidores independientes, se crea un sistema de seguridad social compartida. La plataforma asume una parte mayoritaria de los aportes a salud y pensión, y el 100% de los riesgos laborales.</p>
+                    <div class="grid sm:grid-cols-2 gap-6 items-center">
+                        <div class="chart-container h-64 sm:h-auto">
+                            <canvas id="plataformasChart"></canvas>
+                        </div>
+                        <div class="text-sm">
+                            <h4 class="font-bold text-lg mb-2">Distribución de Aportes (Salud y Pensión)</h4>
+                            <div class="flex items-center mb-2">
+                                <div class="w-4 h-4 rounded-full bg-[#E07A5F] mr-2"></div>
+                                <div><strong class="font-bold">60%</strong> a cargo de la Plataforma</div>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 rounded-full bg-[#81B29A] mr-2"></div>
+                                <div><strong class="font-bold">40%</strong> a cargo del Trabajador</div>
+                            </div>
+                            <hr class="my-4">
+                             <h4 class="font-bold text-lg mb-2">Riesgos Laborales (ARL)</h4>
+                             <p>La plataforma asume el <strong class="text-[#E07A5F] text-xl">100%</strong> del costo.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 card p-6 rounded-lg flex flex-col justify-center">
+                    <h3 class="text-xl font-bold text-[#81B29A] mb-4">Teletrabajo y Tercerización</h3>
+                    <ul class="space-y-4">
+                        <li><strong class="block text-lg">Nuevas Modalidades de Teletrabajo:</strong> Se definen legalmente el teletrabajo híbrido, transnacional y temporal, y se crea un "auxilio de conectividad" obligatorio.</li>
+                        <li><strong class="block text-lg">Límites a la Tercerización:</strong> Se endurecen los controles sobre las Empresas de Servicios Temporales (EST) para evitar que se usen para cubrir necesidades permanentes, reforzando la responsabilidad solidaria de la empresa usuaria.</li>
+                        <li><strong class="block text-lg">Transparencia Algorítmica:</strong> Se obliga a las plataformas a ser transparentes sobre sus algoritmos y se consagra el derecho del trabajador a una revisión humana de decisiones automatizadas.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="sindical" class="scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-[#3C3633] tracking-tight">Fortalecimiento de Derechos Colectivos</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">La ley amplía las garantías para la asociación y negociación, creando un entorno más propicio para la actividad sindical.</p>
+            </div>
+             <div class="grid md:grid-cols-2 gap-8">
+                <div class="card p-6 rounded-lg">
+                    <h3 class="text-xl font-bold text-[#81B29A] mb-4">Nuevas Conductas Antisindicales</h3>
+                    <p class="text-gray-700">Se prohíben explícitamente acciones como discriminar salarialmente a sindicalizados, interferir en la autonomía del sindicato o negar injustificadamente información.</p>
+                </div>
+                 <div class="card p-6 rounded-lg">
+                    <h3 class="text-xl font-bold text-[#81B29A] mb-4">Proceso Judicial Sumario</h3>
+                    <p class="text-gray-700">Se crea una vía judicial rápida y expedita para la protección de derechos sindicales, con plazos muy cortos para garantizar una tutela efectiva y evitar demoras.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-16">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
+            <div class="flex flex-col md:flex-row justify-center items-center space-y-3 md:space-y-0 md:space-x-6 text-sm text-gray-300 mb-4">
+                <span>Elaborado por: 👨🏽‍💻 CP. AUGUSTO CÁRDENAS</span>
+                <span>📧 augustoccardenas@gmail.com</span>
+                <span>☎️ 321 8168328</span>
+            </div>
+            <p class="text-xs text-gray-500">Este es un análisis interactivo con fines informativos, basado en el texto del Proyecto de Ley. No constituye asesoría legal.</p>
+        </div>
+    </footer>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    const contractData = {
+        indefinido: {
+            title: "Contrato a Término Indefinido",
+            antes: "Aunque era la modalidad estándar, no tenía una presunción legal preferente. Su uso competía fuertemente con el contrato a término fijo.",
+            despues: "Se convierte en la <strong>regla general y modalidad por defecto</strong> de toda vinculación laboral. El empleador debe justificar activamente por qué <i>no</i> usa esta modalidad.",
+            impacto: "Cambio filosófico que obliga a las empresas a planificar la vinculación de personal con una perspectiva de largo plazo desde el inicio."
+        },
+        fijo: {
+            title: "Contrato a Término Fijo",
+            antes: "Duración máxima de 3 años, pero con la posibilidad de ser <strong>renovado indefinidamente</strong>, creando una 'temporalidad perpetua'.",
+            despues: "Se impone un <strong>límite máximo total de cinco (5) años</strong>, incluyendo todas sus prórrogas. Después de este plazo, no se puede renovar.",
+            impacto: "Elimina la renovación infinita, pero crea un potencial 'precipicio de los 5 años' que podría incentivar la terminación del contrato antes de cumplirse el plazo."
+        },
+        obra: {
+            title: "Contrato por Obra o Labor",
+            antes: "Requisitos formales menos estrictos, lo que permitía su uso para tareas sucesivas no claramente delimitadas.",
+            despues: "Debe ser por escrito y <strong>detallar de forma precisa y detallada la obra</strong>. Si el trabajo continúa tras finalizar la obra especificada, se convierte automáticamente en indefinido.",
+            impacto: "Aumenta el rigor formal y limita su uso a proyectos con un alcance muy bien definido desde el principio, reduciendo su flexibilidad."
+        },
+        aprendizaje: {
+            title: "Contrato de Aprendizaje",
+            antes: "No era considerado un contrato laboral, sino una relación de formación con un 'apoyo de sostenimiento' sin prestaciones sociales.",
+            despues: "Se transforma en un <strong>contrato de trabajo especial a término fijo</strong>, con derecho a salario completo (100% SMLMV en fase práctica) y todas las prestaciones sociales.",
+            impacto: "Incremento sustancial de los costos para las empresas, lo que podría desincentivar la contratación de aprendices a pesar del aumento en la cuota de monetización."
+        }
+    };
+
+    const contractContentEl = document.getElementById('contract-content');
+    const tabButtons = document.querySelectorAll('.tab-button');
+
+    function renderContractContent(type) {
+        const data = contractData[type];
+        contractContentEl.innerHTML = `
+            <h3 class="text-2xl font-bold text-center mb-6">${data.title}</h3>
+            <div class="grid md:grid-cols-2 gap-6 text-center">
+                <div class="p-4 border border-gray-200 rounded-lg">
+                    <h4 class="font-bold text-lg mb-2 text-gray-500">ANTES</h4>
+                    <p class="text-gray-700">${data.antes}</p>
+                </div>
+                <div class="p-4 border-2 border-[#E07A5F] rounded-lg bg-orange-50">
+                    <h4 class="font-bold text-lg mb-2 text-[#E07A5F]">DESPUÉS (REFORMA)</h4>
+                    <p class="text-gray-800">${data.despues}</p>
+                </div>
+            </div>
+            <div class="mt-6 p-4 bg-gray-100 rounded-lg">
+                <p><strong class="text-[#3C3633]">Impacto Clave:</strong> ${data.impacto}</p>
+            </div>
+        `;
+    }
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            renderContractContent(button.dataset.tab);
+        });
+    });
+
+    renderContractContent('indefinido');
+
+    const recargoDominicalCtx = document.getElementById('recargoDominicalChart').getContext('2d');
+    new Chart(recargoDominicalCtx, {
+        type: 'line',
+        data: {
+            labels: ['Vigente', 'Julio 2025', 'Julio 2026', 'Julio 2027'],
+            datasets: [{
+                label: 'Recargo Dominical y Festivo (%)',
+                data: [75, 80, 90, 100],
+                borderColor: '#E07A5F',
+                backgroundColor: 'rgba(224, 122, 95, 0.2)',
+                fill: true,
+                tension: 0.1,
+                pointBackgroundColor: '#FFFFFF',
+                pointBorderColor: '#E07A5F',
+                pointHoverRadius: 7,
+                pointHoverBackgroundColor: '#E07A5F',
+                pointHoverBorderColor: '#FFFFFF'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: 70,
+                    max: 105,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Recargo: ' + context.parsed.y + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    const plataformasCtx = document.getElementById('plataformasChart').getContext('2d');
+    new Chart(plataformasCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Aporte Plataforma', 'Aporte Trabajador'],
+            datasets: [{
+                label: 'Distribución de Aportes a Seguridad Social',
+                data: [60, 40],
+                backgroundColor: [
+                    '#E07A5F',
+                    '#81B29A'
+                ],
+                borderColor: '#FFFFFF',
+                borderWidth: 4,
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                     callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.parsed + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    const mobileNav = document.getElementById('mobile-nav');
+    mobileNav.addEventListener('change', (event) => {
+        // Use scrollIntoView for smooth scrolling on mobile nav change
+        const targetId = event.target.value;
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+    
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    function updateActiveNav() {
+        let current = '';
+    
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (pageYOffset >= sectionTop - 80) { // 80px offset for the sticky header
+                current = section.getAttribute('id');
+            }
+        });
+    
+        // Special case for the last section when scrolled to the bottom
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2) {
+            current = sections[sections.length - 1].getAttribute('id');
+        }
+    
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${current}`) {
+                link.classList.add('active');
+            }
+        });
+    
+        // Update mobile nav selection
+        if (current) {
+            mobileNav.value = `#${current}`;
+        }
+    }
+
+    window.addEventListener('scroll', updateActiveNav);
+    window.addEventListener('load', updateActiveNav); // Run on load to set initial state
+
+});
+</script>
+
+</body>
+</html>
